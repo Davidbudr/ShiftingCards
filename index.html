@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shifting Cards!</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <style>
+        .shifting-card{
+            aspect-ratio: 1 / 1;
+			height:500px;
+            perspective: 500px;
+            perspective-origin: center center;
+        }
+        .shifting-child{
+            background-size: cover;
+            height:100%;
+            width:100%;
+            transform-style:preserve-3d
+        }
+    </style>
+</head>
+<body>
+    <a href="https://Davidbud.com">
+        <div class="shifting-card item" >
+			<!-- we are using a child within the shifting card for the effect so that when you reach the edges you don't get a weird flickering effect -->
+            <div class="shifting-child" style="background-image: url('./frost_puzzle.png');">
+				<!-- the background image could be in your css instead -->
+            </div>
+        </div>
+    </a>
+</body>
+</html>
+<script>
+    const card = $('.shifting-card');
+
+    const handleMove = e => {
+		const corta = $(e.currentTarget); 
+		const {left, top} = $(corta).position(), x = left, y = top;
+		const {width, height } = $(corta)[0].getBoundingClientRect();
+		<!-- if your website is responsive the size of your card may change, i found that the height + 50 for perspective gives me exactly the effect im looking for, but you could try any size -->
+		$(corta).css("perspective",height + 50);
+		const cx = x + width / 2;
+		const cy = y + height / 2;
+		const { pageX, pageY } = e;
+		const dx = (cx - pageX) / (width / 2);
+		const dy = (cy - pageY) / (height / 2);
+		
+		<!-- giving the child a transition time on transform will mean that the card doesnt just clip to its final position -->
+		const thechild = $(corta).children(".shifting-child");
+		thechild.css("transition","transform 0.05s");
+		thechild.css("transform",`rotateX(${5 * dy *-1}deg) rotateY(${5 * dx}deg)`);
+    };
+
+
+    const handleOut = e => {
+		const corta = $(e.currentTarget);
+		<!-- this just resets the childs transform once your mouse moves away from the parent -->
+		const thechild = $(corta).children(".shifting-child");
+		thechild.css("transition","transform 0.5s");
+		thechild.css("transform",`rotate(0)`);
+    };
+
+
+	<!-- set the move and exit mouse events -->
+    card.on('mousemove', handleMove);
+    card.on('mouseout', handleOut);
+</script>
